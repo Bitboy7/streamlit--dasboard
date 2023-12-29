@@ -1,0 +1,24 @@
+# Archivos y directorios generados por Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entorno virtual
+venv/
+env/
+
+# Archivo de configuración de Python
+*.pyc
+
+# Archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de registro y salida
+*.log
+*.out
+
+# Archivo de configuración local (cambiar si es necesario)
+.env
+
