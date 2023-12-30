@@ -3,8 +3,14 @@ import mysql.connector
 import os
 import time
 from dotenv import load_dotenv
+import pandas as pd
 load_dotenv()
 
+st.set_page_config(
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 # Configurar variables para la conexión a MySQL
 MYSQL_HOST = os.getenv("MYSQL_HOST")
 MYSQL_USER = os.getenv("MYSQL_USER")
@@ -69,14 +75,17 @@ result2 = cursor2.fetchall()
 # Crear un diccionario con los valores obtenidos
 v2 = {i[0]: i[0] for i in result2}
 
+
 id_cat_gastos = col1.selectbox(
     label="Selecciona una categoria:", options=list(v2))
 monto = col1.number_input("Monto:", step=0.01)
 # Mostrar el selectbox en el formulario
 descripcion = col1.text_area("Descripcion:")
-if col1.button("Insertar"):
+if col1.button("Insertar", type="primary"):
     if id_sucursal and id_cat_gastos and monto and descripcion:
         insertar(id_sucursal, id_cat_gastos, monto, descripcion)
+        st.spinner('Procesando...')
+        time.sleep(1)
         st.toast(f"Operacion por la contidad de ${monto} pesos.", icon="💰")
         time.sleep(.5)
         st.toast('Hecho!', icon='🎉')
@@ -90,21 +99,23 @@ if col1.button("Insertar"):
         st.error("Por favor, completa todos los campos requeridos antes de insertar.")
 
 # Editar registros
-col1.subheader("Editar")
-# Obtener el ID del registro a editar
-id_edit = col1.number_input("ID del registro a editar:", min_value=0)
-# Obtener datos
-query = f"SELECT * FROM registro WHERE id = {id_edit}"
-cursor.execute(query)
-registros = cursor.fetchone()
+expe = col1.expander("Editar registros. ✏️", expanded=False)
+
+with expe.subheader("Selecciona el ID a editar."):        
+  # Obtener el ID del registro a editar
+  id_edit = expe.number_input("ID del registro a editar:", min_value=0)
+  # Obtener datos
+  query = f"SELECT * FROM registro WHERE id = {id_edit}"
+  cursor.execute(query)
+  registros = cursor.fetchone()
 if registros:
     # Mostrar formulario con los datos del cliente
-    id_sucursal_edit = col1.number_input("Sucursal:", value=registros[1])
-    id_cat_gastos_edit = col1.number_input("Categoria:", value=registros[2])
-    monto_edit = col1.number_input("Monto:", value=registros[3])
-    descripcion_edit = col1.text_area("Descripcion:", value=registros[5])
+    id_sucursal_edit = expe.number_input("Sucursal:", value=registros[1])
+    id_cat_gastos_edit = expe.number_input("Categoria:", value=registros[2])
+    monto_edit = expe.number_input("Monto:", value=registros[3])
+    descripcion_edit =expe.text_area("Descripcion:", value=registros[5])
 
-    if col1.button("Guardar cambios"):
+    if expe.button("Guardar cambios"):
         # Actualizar los datos del cliente en la base de datos
         sql = f"""
             UPDATE registro
@@ -113,24 +124,39 @@ if registros:
             """
         cursor.execute(sql)
         conn.commit()
+        st.spinner('Actualizando datos...')
         st.toast(f"Registro {id_edit} actualizado correctamente. ", icon="🔄")
         time.sleep(.5)
         st.toast('Hecho!')
 else:
-    col1.warning(f"No se encontró un registro con ID {id_edit}.")
+    expe.warning(f"No se encontró un registro con ID {id_edit}.")
 
-# Eiminar registros
+# Eiminar registros   
+expander = col1.expander("Eiminar registros. ❌", expanded=False)
 
-col2.subheader("Eliminar")
-# Obtener el IDa eliminar
-id_delete = col2.number_input("ID del registro a eliminar:", min_value=0)
-
-if col2.button("Eliminar."):
+with expander.subheader("Selecciona el ID a eliminar."):
+   # Obtener el IDa eliminar
+   id_delete = expander.number_input("ID del registro a eliminar:", min_value=0)
+if expander.button("Eliminar registro."):
     eliminar(id_delete)
+    with st.spinner('Eliminando...'):
+        time.sleep(2.5)
     st.toast(
-        f"Registro con ID {id_delete} eliminado correctamente.",  icon='✅', key=None)
+        f"Registro con ID {id_delete} eliminado correctamente.",  icon='✅')
 
-# Mostrar clientes
+# Obtener los nombres de las categorias ordenadas
+query = "SELECT * FROM cat_gastos ORDER BY ID ASC "
+cursor.execute(query)
+result = cursor.fetchall()
+categorias = [(row[0], row[1]) for row in result]
+
+# Crear un dataframe con los nombres de las categorias
+df_categorias = pd.DataFrame(categorias, columns=["ID", "Categorías"])
+expc = col2.expander("Categorias.")
+# Mostrar el dataframe dentro de un expander
+expc.dataframe(df_categorias)  
+
+# Mostrar registros
 
 col2.subheader("Registro. 📄💹")
 
@@ -146,14 +172,16 @@ with conn:
 if registros:
     # Crear una lista de diccionarios para los datos de la tabla
     data = [{"ID": registro[0], "id_sucursal": registro[1], "id_cat_gasto": registro[2],
-             "monto": registro[3], "fecha registrada": registro[4], "descripcion": registro[5],
+             "monto": "${:,.2f}".format(registro[3]), "fecha registrada": registro[4], "descripcion": registro[5],
              "sucursal": registro[6], "categoria": registro[7]} for registro in registros]
 
     # Mostrar la tabla en Streamlit
     col2.dataframe(data)
+    
 else:
     col2.warning("No hay registros añadidos.")
 
 # Cerrar la conexión
 cursor.close()
 conn.close()
+

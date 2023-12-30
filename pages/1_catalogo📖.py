@@ -2,7 +2,15 @@ import streamlit as st
 import mysql.connector
 import os, time
 from dotenv import load_dotenv
+import re
 load_dotenv()
+
+st.set_page_config(
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+    
 
 # Configurar variables para la conexión a MySQL
 MYSQL_HOST = os.getenv("MYSQL_HOST")
@@ -64,17 +72,21 @@ valores = {i[0]: i[0] for i in result}
 
 # Formulario para insertar clientes
 nombre = col1.text_input("Nombre:")
-telefono = col1.text_input("Telefono:")
+telefono = col1.text_input("Teléfono:")
 correo = col1.text_input("Correo:")
+
+
 # Mostrar el selectbox en el formulario
 estado = col1.selectbox(label="Selecciona un estado:", options=list(valores))
 
-if col1.button("Insertar"):
+if col1.button("Insertar", key="insertar", type="primary"):
     if nombre and telefono and correo and estado:
         insertar_cliente(nombre, telefono, correo, estado)
+        with st.spinner('Wait for it...'):
+          time.sleep(2)
         st.toast(f"Cliente {nombre} insertado correctamente.")
         time.sleep(.5)
-        st.toast('Hecho!', icon='🎉')
+        st.toast('Hecho!', icon='🎉')    
 
         # Reiniciar los campos de entrada
         nombre = ""
@@ -116,14 +128,15 @@ else:
         col1.warning(f"No se encontró un cliente con ID {id_edit}.")
 
 ################### Eiminar registros
-
-col2.subheader("Eliminar")
-# Obtener el ID del cliente a eliminar
-id_delete = col2.number_input("ID del cliente a eliminar:", min_value=0)
-
+with col2.expander("Eliminar", expanded=False):
+    col2.subheader("Eliminar")
+    # Obtener el ID del cliente a eliminar
+    id_delete = col2.number_input("ID del cliente a eliminar:", min_value=0)
 if col2.button("Eliminar."):
     eliminar_cliente(id_delete)
-    st.success(f"Cliente con ID {id_delete} eliminado correctamente.")
+    with st.spinner('Eliminando cliente...'):
+        time.sleep(2.5)
+    st.toast(f"Cliente con ID {id_delete} eliminado correctamente.")        
 
 ################## Mostrar clientes
 
