@@ -22,5 +22,28 @@ df = load_data(uploaded_file)
 
 with st.expander("Ver datos"):
     st.dataframe(df)
-    
+
+# Añadir filtros
+with st.expander("Filtros"):
+    columnas = df.columns.tolist()
+    filtro_columna = st.selectbox("Selecciona una columna para filtrar:", columnas)
+    filtro_valor = st.text_input("Ingresa el valor para filtrar:")
+    if st.button("Aplicar filtro"):
+        df = df[df[filtro_columna] == filtro_valor]
+        st.dataframe(df)
+
+# Hacer operaciones según el archivo cargado
+with st.expander("Operaciones"):
+    operacion = st.selectbox("Selecciona una operación:", ["Suma", "Promedio", "Máximo", "Mínimo"])
+    columna_operacion = st.selectbox("Selecciona una columna para la operación:", columnas)
+    if st.button("Aplicar operación"):
+        if operacion == "Suma":
+            resultado = df[columna_operacion].sum()
+        elif operacion == "Promedio":
+            resultado = df[columna_operacion].mean()
+        elif operacion == "Máximo":
+            resultado = df[columna_operacion].max()
+        elif operacion == "Mínimo":
+            resultado = df[columna_operacion].min()
+        st.write(f"El resultado de la operación {operacion} en la columna {columna_operacion} es: {resultado}")
 

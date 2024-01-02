@@ -52,6 +52,7 @@ def eliminar(id):
     cursor.execute(sql)
     conn.commit()
 
+
 # Crear dos columnas
 col1, col2 = st.columns({90, 135})
 # Insertar registros
@@ -101,19 +102,19 @@ if col1.button("Insertar", type="primary"):
 # Editar registros
 expe = col1.expander("Editar registros. ✏️", expanded=False)
 
-with expe.subheader("Selecciona el ID a editar."):        
-  # Obtener el ID del registro a editar
-  id_edit = expe.number_input("ID del registro a editar:", min_value=0)
-  # Obtener datos
-  query = f"SELECT * FROM registro WHERE id = {id_edit}"
-  cursor.execute(query)
-  registros = cursor.fetchone()
+with expe.subheader("Selecciona el ID a editar."):
+    # Obtener el ID del registro a editar
+    id_edit = expe.number_input("ID del registro a editar:", min_value=0)
+    # Obtener datos
+    query = f"SELECT * FROM registro WHERE id = {id_edit}"
+    cursor.execute(query)
+    registros = cursor.fetchone()
 if registros:
     # Mostrar formulario con los datos del cliente
     id_sucursal_edit = expe.number_input("Sucursal:", value=registros[1])
     id_cat_gastos_edit = expe.number_input("Categoria:", value=registros[2])
     monto_edit = expe.number_input("Monto:", value=registros[3])
-    descripcion_edit =expe.text_area("Descripcion:", value=registros[5])
+    descripcion_edit = expe.text_area("Descripcion:", value=registros[5])
 
     if expe.button("Guardar cambios"):
         # Actualizar los datos del cliente en la base de datos
@@ -131,12 +132,13 @@ if registros:
 else:
     expe.warning(f"No se encontró un registro con ID {id_edit}.")
 
-# Eiminar registros   
+# Eiminar registros
 expander = col1.expander("Eiminar registros. ❌", expanded=False)
 
 with expander.subheader("Selecciona el ID a eliminar."):
-   # Obtener el IDa eliminar
-   id_delete = expander.number_input("ID del registro a eliminar:", min_value=0)
+    # Obtener el IDa eliminar
+    id_delete = expander.number_input(
+        "ID del registro a eliminar:", min_value=0)
 if expander.button("Eliminar registro."):
     eliminar(id_delete)
     with st.spinner('Eliminando...'):
@@ -154,7 +156,7 @@ categorias = [(row[0], row[1]) for row in result]
 df_categorias = pd.DataFrame(categorias, columns=["ID", "Categorías"])
 expc = col2.expander("Categorias.")
 # Mostrar el dataframe dentro de un expander
-expc.dataframe(df_categorias)  
+expc.dataframe(df_categorias)
 
 # Mostrar registros
 
@@ -162,10 +164,11 @@ col2.subheader("Registro. 📄💹")
 
 # Realizar la consulta SQL
 with conn:
-    cursor.execute("""SELECT r.*, su.nombre AS sucursal, ca.nombre AS categoria
-                      FROM registro r
-                      LEFT JOIN sucursal su ON r.id_sucursal = su.id
-                      LEFT JOIN cat_gastos ca ON r.id_cat_gasto = ca.id;""")
+    cursor.execute("""SELECT r.*, su.nombre AS Sucursal, ca.nombre AS Categoria, es.nombre AS Estado
+                      FROM registro r, sucursal su, cat_gastos ca, estado es
+                      WHERE r.id_sucursal = su.id
+                      AND r.id_cat_gasto = ca.id
+                      AND su.id_estado = es.id;""")
     registros = cursor.fetchall()
 
 # Mostrar la tabla en Streamlit
@@ -173,15 +176,14 @@ if registros:
     # Crear una lista de diccionarios para los datos de la tabla
     data = [{"ID": registro[0], "id_sucursal": registro[1], "id_cat_gasto": registro[2],
              "monto": "${:,.2f}".format(registro[3]), "fecha registrada": registro[4], "descripcion": registro[5],
-             "sucursal": registro[6], "categoria": registro[7]} for registro in registros]
+             "sucursal": registro[6], "categoria": registro[7], "estado": registro[8]} for registro in registros]
 
     # Mostrar la tabla en Streamlit
     col2.dataframe(data)
-    
+
 else:
     col2.warning("No hay registros añadidos.")
 
 # Cerrar la conexión
 cursor.close()
 conn.close()
-

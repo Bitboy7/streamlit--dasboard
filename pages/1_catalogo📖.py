@@ -11,7 +11,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
     
-
 # Configurar variables para la conexión a MySQL
 MYSQL_HOST = os.getenv("MYSQL_HOST")
 MYSQL_USER = os.getenv("MYSQL_USER")
@@ -39,6 +38,7 @@ else:
 ######################## Funciones
 
 # Función para insertar clientes
+@st.cache_resource    
 def insertar_cliente(nombre, telefono, correo, estado):
     sql = f"""
     INSERT INTO productores (fullname, phone, email, id_estado)
@@ -50,6 +50,7 @@ def insertar_cliente(nombre, telefono, correo, estado):
     conn.commit()
 
 # Función para eliminar un cliente por su ID
+@st.cache_resource    
 def eliminar_cliente(id):
     sql = f"DELETE FROM productores WHERE id = {id}"
     cursor = conn.cursor()
