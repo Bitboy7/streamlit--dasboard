@@ -1,6 +1,15 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+# Importar las funciones de ayuda
+from helpers.load_css import load_css_style
+# Cargar el estilo CSS
+load_css_style()
+
 st.title("Carga de archivos excel 📗")
 st.markdown("Prototipo 0.1.0")
 

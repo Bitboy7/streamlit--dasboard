@@ -4,6 +4,7 @@ import json
 import requests
 import datetime
 from streamlit_card import card
+from st_pages import show_pages_from_config, add_page_title
 
 st.set_page_config(
     page_title="Sistema de Gestión de gastos",
@@ -11,6 +12,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+show_pages_from_config()
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
@@ -35,5 +38,3 @@ with col1:
     st.write("Este sistema permite llevar un control de los gastos de la empresa, así como de los egresos de la misma.")
 with col2:
     st_lottie(path)
-
-    

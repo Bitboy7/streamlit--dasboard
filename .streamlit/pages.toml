@@ -1,0 +1,37 @@
+[theme]
+primaryColor="#32b371"
+backgroundColor="#2f2e2e"
+secondaryBackgroundColor="#777777"
+textColor="#ffffff"
+
+
+[[pages]]
+path = "app.py"
+name = "Inicio"
+icon = ""
+
+[[pages]]
+path = "views/catalogo.py"
+name = "Catalogo"
+icon = ":books:"
+
+[[pages]]
+path = "views/pagos.py"
+name = "Pagos a productores"
+icon = "🥭"
+
+[[pages]]
+path = "views/gastos.py"
+name = "Gastos generales"
+icon = "💲"
+
+[[pages]]
+path = "views/datos.py"
+name = "Reportes"
+icon = "📉"
+
+[[pages]]
+path = "views/dash.py"
+name = "beta"
+icon = ""
+

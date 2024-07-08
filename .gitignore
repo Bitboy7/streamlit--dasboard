@@ -5,8 +5,13 @@ __pycache__/
 *.pyd
 
 # Entorno virtual
+venv
 venv/
 env/
+
+ani.json
+
+test.html
 
 # Archivo de configuración de Python
 *.pyc
@@ -22,3 +27,4 @@ Thumbs.db
 # Archivo de configuración local (cambiar si es necesario)
 .env
 
+.idea
