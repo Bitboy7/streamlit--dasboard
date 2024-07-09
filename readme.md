@@ -8,11 +8,10 @@ Este proyecto es un sistema de gestión de gastos desarrollado con Streamlit, di
 - **Gestión de Gastos Generales**: Facilita el registro y seguimiento de los gastos generales de la empresa.
 - **Generación de Reportes**: Ofrece la capacidad de generar reportes detallados sobre los gastos e ingresos, permitiendo una mejor toma de decisiones.
 - **Catálogo de Clientes**: Gestiona un catálogo de clientes, incluyendo operaciones como inserción y eliminación de clientes.
-
 ## Tecnologías Utilizadas
 
-- <i class="fab fa-python"></i> **Streamlit**: Para la creación de la interfaz de usuario y la interacción con el sistema.
-- <i class="fas fa-database"></i> **MySQL**: Como sistema de gestión de base de datos para almacenar y gestionar los datos del sistema.
+- <img src="https://example.com/python.png" alt="Python" width="20" height="20"> **Streamlit**: Para la creación de la interfaz de usuario y la interacción con el sistema.
+- <img src="https://example.com/streamlit.png" alt="Streamlit" width="20" height="20"> **MySQL**: Como sistema de gestión de base de datos para almacenar y gestionar los datos del sistema.
 - <i class="fab fa-python"></i> **Pandas y Plotly**: Para el manejo de datos y la generación de gráficos.
 - <i class="fab fa-python"></i> **Python**: Lenguaje de programación utilizado para el desarrollo del backend.
 
