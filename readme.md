@@ -11,10 +11,14 @@ Este proyecto es un sistema de gestión de gastos desarrollado con Streamlit, di
 
 ## Tecnologías Utilizadas
 
-- **Streamlit**: Para la creación de la interfaz de usuario y la interacción con el sistema.
-- **MySQL**: Como sistema de gestión de base de datos para almacenar y gestionar los datos del sistema.
-- **Pandas y Plotly**: Para el manejo de datos y la generación de gráficos.
-- **Python**: Lenguaje de programación utilizado para el desarrollo del backend.
+- <i class="fab fa-python"></i> **Streamlit**: Para la creación de la interfaz de usuario y la interacción con el sistema.
+- <i class="fas fa-database"></i> **MySQL**: Como sistema de gestión de base de datos para almacenar y gestionar los datos del sistema.
+- <i class="fab fa-python"></i> **Pandas y Plotly**: Para el manejo de datos y la generación de gráficos.
+- <i class="fab fa-python"></i> **Python**: Lenguaje de programación utilizado para el desarrollo del backend.
+
+<div style="background-color: #f2f2f2; padding: 10px;">
+    <i class="fas fa-info-circle"></i> **Nota**: Para personalizar el diseño de la interfaz de usuario, puedes utilizar CSS y aplicar estilos a los elementos HTML.
+</div>
 
 ## Estructura del Proyecto
 
