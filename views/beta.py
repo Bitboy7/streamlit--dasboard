@@ -1,99 +1,127 @@
 import streamlit as st
 import pandas as pd
-from models.db import * 
-from streamlit_extras.metric_cards import style_metric_cards
-from streamlit_option_menu import option_menu
+import mysql.connector
 import plotly.express as px
-import plotly.subplots as sp
+from models.db import create_connection
+import os
 
-# Establecer la página
-st.set_page_config(page_title="Panel de análisis", page_icon="🌎", layout="wide")  
-st.subheader("📈 Panel de análisis de negocios")
-st.write("Este es un panel de análisis simple para negocios")
-
-#get data from mysql
-result = view_all_data()
-
-df = pd.DataFrame(result,columns=[	
-'ID', 'ID_sucursal', 'ID_categoria', 'Monto','Fecha registrada', 'Descripcion', 'Sucursal', 'Categoria', 'Estado'
-])
-#switcher
-st.sidebar.header("Please filter")
-Sucursal=st.sidebar.multiselect(
-    "Fltrar por sucursall",
-     options=df["Sucursal"].unique(),
-     default=df["Sucursal"].unique(),
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
-Categoria=st.sidebar.multiselect(
-    "Filter ID_categoria",
-     options=df["Categoria"].unique(),
-     default=df["Categoria"].unique(),
-)
+from st_pages import show_pages_from_config, add_page_title
+show_pages_from_config()
+# Importar las funciones de ayuda
+from helpers.load_css import load_css_style
+# Cargar el estilo CSS
+load_css_style()
 
-df_selection=df.query(
-    "Sucursal==@Sucursal & Categoria==@Categoria"
-)
+conn = create_connection()
+cursor = conn.cursor()
 
-#top analytics
-def metrics():
- col1, col2, col3 = st.columns(3)
+# Check if connection is established
+if conn.is_connected():
+    st.write("Connected to database")
+else:
+    st.write("Not connected to database")
 
- col1.metric(label="Total Customers", value=df_selection['ID'].count(), delta="All customers")
+######################## Funciones para las consultas a la base de datos
 
- col2.metric(label="Total Monto", value= f"{df_selection['Monto'].sum():,.0f}",delta=df['Monto'].median())
+def execute_query(query, params=None):
+    cursor.execute(query, params)
+    conn.commit()
 
- col3.metric(label="Monto", value= f"{ df_selection['Monto'].max()-df['Monto'].min():,.0f}",delta="Monto Range")
+def fetch_all(query, params=None):
+    cursor.execute(query, params)
+    return cursor.fetchall()
 
- style_metric_cards(background_color="#FFFFFF",border_left_color="#1f66bd")
+def fetch_one(query, params=None):
+    cursor.execute(query, params)
+    return cursor.fetchone()
 
-#create divs
-div1, div2=st.columns(2)
+# Función para ejecutar consultas SQL
+def run_query(query):
+    with conn.cursor() as cur:
+        cur.execute(query)
+        return cur.fetchall()
 
-#pie chart
-def pie():
- with div1:
-  theme_plotly = None # None or streamlit
-  fig = px.pie(df_selection, values='Monto', names='ID_sucursal', title='Monto by ID_sucursal')
-  fig.update_layout(legend_title="ID_sucursal", legend_y=0.9)
-  fig.update_traces(textinfo='percent+label', textposition='inside')
-  st.plotly_chart(fig, use_container_width=True, theme=theme_plotly)
+# Cargar datos
+@st.cache_data
+def load_data():
+  data = run_query("""    
+    SELECT r.*, su.nombre AS Sucursal, ca.nombre AS Categoria, es.nombre AS Estado
+    FROM registro r, sucursal su, cat_gastos ca, estado es
+    WHERE r.id_sucursal = su.id
+    AND r.id_cat_gasto = ca.id
+    AND su.id_estado = es.id;
+    """)
+  columns = ['ID', 'ID_sucursal', 'ID_categoria', 'Monto', 'Fecha_registrada', 'Descripcion', 'Sucursal', 'Categoria', 'Estado']
+  df = pd.DataFrame(data, columns=columns)
+  df['Fecha_registrada'] = pd.to_datetime(df['Fecha_registrada'])
+  df['Monto'] = df['Monto'].astype(str).str.replace('$', '').str.replace(',', '').astype(float)
+  return df
 
-#bar chart
-def barchart():
-  theme_plotly = None # None or streamlit
-  with div2:
-    fig = px.bar(df_selection, y='Monto', x='ID_categoria', text_auto='.2s',title="Controlled text sizes, positions and angles")
-    fig.update_traces(textfont_size=18, textangle=0, textposition="outside", cliponaxis=False)
-    st.plotly_chart(fig, use_container_width=True, theme="streamlit")
+df = load_data()
 
-#mysql table
-def table():
-  with st.expander("Tabular"):
-  #st.dataframe(df_selection,use_container_width=True)
-   shwdata = st.multiselect('Filter :', df.columns, default=["ID","ID_sucursal","ID_categoria","Monto","Fecha registrada","Descripcion","Sucursal","Categoria","Estado"])
-   st.dataframe(df_selection[shwdata],use_container_width=True)
+# Interfaz de Streamlit
+st.title('Dashboard de Análisis de Transacciones')
+
+# Sidebar para filtros
+st.sidebar.header('Filtros')
+sucursal = st.sidebar.multiselect('Selecciona Sucursal', options=df['Sucursal'].unique())
+categoria = st.sidebar.multiselect('Selecciona Categoría', options=df['Categoria'].unique())
+estado = st.sidebar.multiselect('Selecciona Estado', options=df['Estado'].unique())
+
+# Aplicar filtros
+if sucursal:
+    df = df[df['Sucursal'].isin(sucursal)]
+if categoria:
+    df = df[df['Categoria'].isin(categoria)]
+if estado:
+    df = df[df['Estado'].isin(estado)]
+
+# Métricas principales
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Transacciones", f"{len(df)}")
+col2.metric("Monto Total", f"${df['Monto'].sum():,.2f}")
+col3.metric("Promedio por Transacción", f"${df['Monto'].mean():,.2f}")
+
+# Gráficas
+st.subheader('Análisis de Transacciones')
+# Métricas principales
+colg1, colg2 = st.columns(2)
+# Gráfica de barras: Monto total por sucursal
+with colg1.container():
+  st.subheader('Monto Total por Sucursal')
+  fig_sucursal = px.bar(df.groupby('Sucursal')['Monto'].sum().reset_index(), 
+              x='Sucursal', y='Monto')
+  st.plotly_chart(fig_sucursal)
+
+# Gráfica de pastel: Distribución de categorías
+with colg2.container():
+  st.subheader('Distribución de Montos por Categoría')
+  fig_categoria = px.pie(df, values='Monto', names='Categoria')
+  st.plotly_chart(fig_categoria)
+
+# Gráfica de línea: Tendencia de transacciones en el tiempo
+with st.container():
+  st.subheader('Tendencia de Transacciones en el Tiempo')
+  df_time = df.groupby('Fecha_registrada')['Monto'].sum().reset_index()
+  fig_time = px.line(df_time, x='Fecha_registrada', y='Monto')
+  st.plotly_chart(fig_time)
+
+# Mapa de calor: Transacciones por estado
+with st.container():
+  st.subheader('Transacciones por Estado')
+  fig_estado = px.choropleth(df.groupby('Estado')['Monto'].sum().reset_index(),
+           locations='Estado',
+           locationmode='country names',
+           color='Monto',
+           hover_name='Estado',
+           color_continuous_scale='Viridis')
+  st.plotly_chart(fig_estado)
 
 
-#option menu
-with st.sidebar:
-        selected=option_menu(
-        menu_title="Main Menu",
-         #menu_title=None,
-        options=["Home","Table"],
-        icons=["house","book"],
-        menu_icon="cast", #option
-        default_index=0, #option
-        orientation="vertical",
-
-        )
- 
-if selected=="Home":
-    
-    pie()
-    barchart()
-    metrics()
-
-if selected=="Table":
-   metrics()
-   table()
-   df_selection.describe().T
+# Tabla de datos
+st.subheader('Datos Detallados')
+st.dataframe(df)
