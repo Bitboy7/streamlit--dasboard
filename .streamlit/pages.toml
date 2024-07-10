@@ -35,3 +35,7 @@ path = "views/beta.py"
 name = "beta"
 icon = ""
 
+[[pages]]
+path = "views/experimental.py"
+name = "Insertar informacion"
+icon = ""
