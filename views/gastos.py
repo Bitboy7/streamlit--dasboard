@@ -1,103 +1,46 @@
 import streamlit as st
 import time
 import pandas as pd
+from helpers.load_css import load_css_style, remote_css, remote_js, iconMetricContainer
+from models.db import create_connection
+from controllers.querys import execute_query, fetch_all, fetch_one, obtener_sucursales, obtener_categorias_gastos, obtener_categorias_ordenadas, obtener_registros_df, insertar, actualizar, eliminar, obtener_cuenta
 
 st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
 from st_pages import show_pages_from_config, add_page_title
 show_pages_from_config()
-# Importar las funciones de ayuda
-from helpers.load_css import load_css_style
+
 # Cargar el estilo CSS
 load_css_style()
+st.write("""
+            <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap')
+            </style>
+        """, unsafe_allow_html=True)
 
-import os
-from dotenv import load_dotenv
-load_dotenv()
+remote_css(
+            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css")
 
-from models.db import create_connection
+remote_css(
+            "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css")
 
+remote_css("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap")
+
+remote_js(
+            "https://code.jquery.com/jquery-3.6.0.min.js")
+    
+# Crear la conexión a la base de datos
 conn = create_connection()
 cursor = conn.cursor()
 
-# Check if connection is established
+# Verificar si la conexión fue exitosa
 if conn.is_connected():
     st.write("Connected to database")
 else:
     st.write("Not connected to database")
-
-# Funciones para las consultas a la base de datos
-def execute_query(query, params=None):
-    cursor.execute(query, params)
-    conn.commit()
-
-def fetch_all(query, params=None):
-    cursor.execute(query, params)
-    return cursor.fetchall()
-
-def fetch_one(query, params=None):
-    cursor.execute(query, params)
-    return cursor.fetchone()
-
-# Función para insertar registros
-def insertar(id_sucursal, id_cat_gasto, monto, descripcion):
-    sql = """
-    INSERT INTO registro (id_sucursal, id_cat_gasto, monto, descripcion)
-    VALUES (%s, %s, %s, %s)
-    """
-    params = (id_sucursal, id_cat_gasto, monto, descripcion)
-    execute_query(sql, params)
-
-# Función para actualizar registros
-def actualizar(id_edit, id_sucursal_edit, id_cat_gastos_edit, monto_edit, descripcion_edit):
-    sql = """
-        UPDATE registro
-        SET id_sucursal = %s, id_cat_gasto = %s, monto = %s, descripcion = %s
-        WHERE id = %s
-    """
-    params = (id_sucursal_edit, id_cat_gastos_edit, monto_edit, descripcion_edit, id_edit)
-    execute_query(sql, params)
-
-# Función para eliminar registros
-def eliminar(id):
-    sql_select = "SELECT id FROM registro WHERE id = %s"
-    result = fetch_one(sql_select, (id,))
-    if result is None:
-        st.error("El ID no existe en la base de datos")
-        return
-    sql_delete = "DELETE FROM registro WHERE id = %s"
-    execute_query(sql_delete, (id,))
-
-# Obtener los valores de la columna id de la tabla sucursal
-def obtener_sucursales():
-    query = "SELECT id, nombre FROM sucursal"
-    return fetch_all(query)
-
-# Obtener los valores de la columna id y nombre de la tabla cat gastos
-def obtener_categorias_gastos():
-    query = "SELECT id, nombre FROM cat_gastos"
-    return fetch_all(query)
-
-# Obtener los nombres de las categorias ordenadas
-def obtener_categorias_ordenadas():
-    query = "SELECT * FROM cat_gastos ORDER BY ID ASC"
-    result = fetch_all(query)
-    return [(row[0], row[1]) for row in result]
-
-# Obtener registros
-def obtener_registros():
-    query = """
-        SELECT r.*, su.nombre AS Sucursal, ca.nombre AS Categoria, es.nombre AS Estado
-        FROM registro r, sucursal su, cat_gastos ca, estado es
-        WHERE r.id_sucursal = su.id
-        AND r.id_cat_gasto = ca.id
-        AND su.id_estado = es.id
-        ORDER BY r.id DESC
-        LIMIT 50;
-    """
-    return fetch_all(query)
 
 # Crear dos columnas
 col1, col2 = st.columns({90, 135})
@@ -120,19 +63,30 @@ with expand_insert.subheader("Insertar registros. 📝"):
 
     monto = expand_insert.number_input("Monto:", step=0.01, format="%.2f")
     descripcion = expand_insert.text_area("Descripcion:")
+
+    cuenta = obtener_cuenta()
+    v3 = {i[0]: i[1] for i in cuenta}
+    cuenta = expand_insert.selectbox("Cuenta:", options=list(v3))
+    nombre_cuenta = v3.get(cuenta, "")
+
+    expand_insert.write(f"<p style= font-size: 24px; font-weight: bold;color: #26472A;'>Numero de cuenta: {nombre_cuenta}</p>", unsafe_allow_html=True)
+
+    fecha = expand_insert.date_input("Fecha:")
+
     if expand_insert.button("Insertar", type="primary"):
         if id_sucursal and id_cat_gastos and monto and descripcion:
-            insertar(id_sucursal, id_cat_gastos, monto, descripcion)
-            st.spinner('Procesando...')
-            time.sleep(1)
+            insertar(id_sucursal, id_cat_gastos, monto, descripcion, cuenta, fecha)
+            with st.spinner('Wait for it...'):
+                time.sleep(3)
+            st.success('Done!')
             st.toast(f"Operacion por la contidad de ${monto} pesos.", icon="💰")
-            time.sleep(.5)
-            st.toast('Hecho!', icon='🎉')
 
             id_sucursal = ""
             id_cat_gastos = ""
             monto = ""
             descripcion = ""
+            cuenta = ""
+            fecha = ""
         else:
             st.error("Por favor, completa todos los campos requeridos antes de insertar.")
 
@@ -141,7 +95,7 @@ expe = col1.expander("Editar. ✏️", expanded=False)
 
 with expe.subheader("Selecciona el ID a editar."):
     id_edit = expe.number_input("ID del registro a editar:", min_value=0)
-    query = "SELECT * FROM registro WHERE id = %s"
+    query = "SELECT * FROM gastos WHERE id = %s"
     registros = fetch_one(query, (id_edit,))
 
 if registros:
@@ -170,6 +124,8 @@ if expander.button("Eliminar registro."):
 
 # Obtener las categorias ordenadas
 categorias = obtener_categorias_ordenadas()
+
+# Mostrar categorias
 df_categorias = pd.DataFrame(categorias, columns=["ID", "Categorías"])
 expc = col2.expander("Categorias.")
 expc.dataframe(df_categorias)
@@ -177,12 +133,11 @@ expc.dataframe(df_categorias)
 # Mostrar registros
 col2.subheader("Registro. 📄💹")
 
-registros = obtener_registros()
+registros = obtener_registros_df()
 
 if registros:
     data = [{"ID": registro[0], "id_sucursal": registro[1], "id_cat_gasto": registro[2],
-             "monto": "${:,.2f}".format(registro[3]), "fecha registrada": registro[4], "descripcion": registro[5],
-             "sucursal": registro[6], "categoria": registro[7], "estado": registro[8]} for registro in registros]
+             "monto": "${:,.2f}".format(registro[3]), "fecha registrada": registro[4], "descripcion": registro[5], "id_cuenta_banco": registro[6], "fecha": registro[7],"sucursal": registro[8], "categoria": registro[9], "estado": registro[10]} for registro in registros]
 
     col2.dataframe(data)
 else:

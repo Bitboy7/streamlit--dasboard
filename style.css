@@ -1,18 +1,35 @@
-/*Estilo general para contenedores*/
+*{
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   font-family: 'Roboto', sans-serif;
+}
+
+body{
+   background-color: #1a1a1a;
+   color: #f0f0f0;
+}
+
 div[data-testid="stAppViewBlockContainer"] div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"],
 div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stVerticalBlockBorderWrapper"]  {
-   background-color:rgb(76, 74, 74);
-   padding:5px;
-   border-radius:15px;        
-   /* border: silver solid 2px; */
-   box-shadow: 0px 0px 10px rgba(178, 182, 192,0.3)
+   background: transparent;
+   padding:5px;       
+   border: none;
 }
 
 /* Color etiquetas y títulos*/
 h3,
 label[data-testid="stMetricLabel"] p{  
    font-weight:bold;
-   color:#1ea47e
+   color:#b2bcb9;
+}
+
+div.st-emotion-cache-ul70r3 e1nzilvr5{
+   color:#f0f0f0;
+   font-weight: 500;
+   border-radius: 12px;
+   padding: 5px 10px;
+   background-color: #2e453f;
 }
 
 /* Estilo de valor de métricas*/
@@ -20,6 +37,7 @@ div[data-testid="stMetricValue"]{
    font-size:2.5em;
    font-weight:bold;
    color: #1ea47e;
+   border: none;
 }
 
 /*Estilos para tablas*/
@@ -27,8 +45,7 @@ div[data-testid="stMetricValue"]{
 .dashboardTable {
    border-collapse: collapse;
    margin: 25px 0;
-   font-size: 0.9em;
-   font-family: sans-serif;    
+   font-size: 0.9em;   
    width:100%
 }
 .dashboardTable thead tr {
@@ -43,8 +60,8 @@ div[data-testid="stMetricValue"]{
 }
 
 .dashboardTable tbody tr {
-   border-bottom: 1px solid #ecedff;
-   background-color:rgb(54, 54, 54);
+   border: none;
+   background:transparent;
 }
 
 .dashboardTable tbody tr:nth-of-type(even) {

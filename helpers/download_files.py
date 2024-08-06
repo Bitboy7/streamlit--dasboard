@@ -6,9 +6,6 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.table import Table, TableStyleInfo
-import os
-import pandas as pd
-import streamlit as st
 # Crear un archivo Excel con los datos filtrados
 def create_excel_file(df):
     # Crear un libro de trabajo de Excel
@@ -62,6 +59,6 @@ def create_excel_file(df):
 def download_excel_file(df):
         excel_data = create_excel_file(df)
         b64 = base64.b64encode(excel_data.read()).decode()
-        href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="datos.xlsx"><button style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s ease; text-decoration: none; display: inline-block;">Descargar Excel</button></a>'
+        href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="datos.xlsx"><button style="background-color: #87C489; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s ease; text-decoration: none; display: inline-block;">Descargar Excel</button></a>'
         return href
 

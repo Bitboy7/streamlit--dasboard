@@ -1,8 +1,10 @@
 import streamlit as st
-import os
+from models.db import create_connection
 from dotenv import load_dotenv
 import time
+import os
 from streamlit_modal import Modal
+from controllers.querys import *
 
 st.set_page_config(
     layout="wide",
@@ -10,39 +12,26 @@ st.set_page_config(
 )
 from st_pages import show_pages_from_config, add_page_title
 show_pages_from_config()
+
 # Importar las funciones de ayuda
 from helpers.load_css import load_css_style
+
 # Cargar el estilo CSS
 load_css_style()
 
-import os
+# Cargar variables de entorno
 from dotenv import load_dotenv
 load_dotenv()
 
-from models.db import create_connection
-
+# Crear conexion a la bd
 conn = create_connection()
 cursor = conn.cursor()
 
-# Check if connection is established
+# Verificar conexion
 if conn.is_connected():
     st.write("Connected to database")
 else:
     st.write("Not connected to database")
-
-######################## Funciones para las consultas a la base de datos
-
-def execute_query(query, params=None):
-    cursor.execute(query, params)
-    conn.commit()
-
-def fetch_all(query, params=None):
-    cursor.execute(query, params)
-    return cursor.fetchall()
-
-def fetch_one(query, params=None):
-    cursor.execute(query, params)
-    return cursor.fetchone()
 
 # Función para insertar clientes
 def insertar_cliente(nombre, telefono, correo, estado):

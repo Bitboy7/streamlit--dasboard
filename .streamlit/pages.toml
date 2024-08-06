@@ -11,23 +11,8 @@ name = "Inicio"
 icon = ""
 
 [[pages]]
-path = "views/catalogo.py"
-name = "Catalogo"
-icon = ":books:"
-
-[[pages]]
-path = "views/pagos.py"
-name = "Pagos a productores"
-icon = "🥭"
-
-[[pages]]
-path = "views/gastos.py"
-name = "Gastos generales"
-icon = "💲"
-
-[[pages]]
 path = "views/datos.py"
-name = "Reportes"
+name = "Analisis"
 icon = "📉"
 
 [[pages]]

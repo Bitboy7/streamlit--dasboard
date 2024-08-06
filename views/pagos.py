@@ -2,7 +2,7 @@ import streamlit as st
 from mysql.connector import Error
 from helpers.load_css import load_css_style
 from dotenv import load_dotenv
-from controllers.pay_querys import *
+from controllers.querys import *
 import pandas as pd
 import plotly.express as px
 from helpers.download_files import *
