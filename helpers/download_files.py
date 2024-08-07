@@ -6,6 +6,9 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.table import Table, TableStyleInfo
+from fpdf import FPDF
+from datetime import datetime
+import plotly.express as px
 # Crear un archivo Excel con los datos filtrados
 def create_excel_file(df):
     # Crear un libro de trabajo de Excel
@@ -62,3 +65,56 @@ def download_excel_file(df):
         href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="datos.xlsx"><button style="background-color: #87C489; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s ease; text-decoration: none; display: inline-block;">Descargar Excel</button></a>'
         return href
 
+# Función para crear el PDF
+def create_pdf(df):
+    pdf = FPDF()
+    pdf.add_page()
+
+    # Título
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, "Reporte de Gastos", ln=True, align='C')
+    pdf.ln(10)
+
+    # Fecha y hora de generación del reporte
+    pdf.set_font("Arial", "", 10)
+    now = datetime.now()
+    pdf.cell(0, 10, f"Fecha y Hora de Generación: {now.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
+    pdf.ln(10)
+
+    # Resumen estadístico
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Resumen Estadístico", ln=True)
+    pdf.set_font("Arial", "", 10)
+    stats = df['monto'].describe()
+    for stat, value in stats.items():
+        pdf.cell(0, 10, f"{stat.capitalize()}: ${value:.2f}", ln=True)
+    pdf.ln(10)
+
+    # Top 5 gastos más altos
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Top 5 Gastos más Altos", ln=True)
+    pdf.set_font("Arial", "", 10)
+    top_5 = df.nlargest(5, 'monto')
+    for _, row in top_5.iterrows():
+        pdf.cell(0, 10, f"Fecha: {row['Fecha']}, Monto: ${row['monto']:.2f}, Categoría: {row['Categoria']}", ln=True)
+    pdf.ln(10)
+
+    # Gastos por categoría
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Gastos por Categoría", ln=True)
+    pdf.set_font("Arial", "", 10)
+    category_totals = df.groupby('Categoria')['monto'].sum().sort_values(ascending=False)
+    for category, total in category_totals.items():
+        pdf.cell(0, 10, f"Categoría {category}: ${total:.2f}", ln=True)
+
+    return pdf
+
+# Función para crear el gráfico
+def create_plot(df, x, y, title):
+    fig = px.bar(df, x=x, y=y, title=title)
+    fig.update_layout(xaxis_title='Categoría', yaxis_title='Monto')
+    fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)', marker_line_width=1.5, opacity=0.6)
+    fig.update_layout(title_font=dict(size=20))
+    fig.update_layout(showlegend=False)
+    fig.update_layout(autosize=False, width=800, height=500)
+    return fig

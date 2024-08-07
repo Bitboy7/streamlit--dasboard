@@ -21,6 +21,6 @@ name = "beta"
 icon = ""
 
 [[pages]]
-path = "views/experimental.py"
-name = "Insertar informacion"
+path = "views/reportes.py"
+name = "Reportes"
 icon = ""
