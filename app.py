@@ -20,7 +20,7 @@ with open('style.css') as f:
 
 st.caption('This is a string that explains something above.')
 
-
+@st.cache_resource(max_entries=10, ttl=7600)
 def get(path: str):
     with open(path, "r") as p:
         return json.load(p)

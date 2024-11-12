@@ -12,7 +12,7 @@ icon = ""
 
 [[pages]]
 path = "views/datos.py"
-name = "Analisis"
+name = "Analisis de gastos"
 icon = "📉"
 
 [[pages]]

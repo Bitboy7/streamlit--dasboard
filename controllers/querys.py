@@ -154,3 +154,10 @@ def obtener_registros_df():
 def obtener_cuenta():
     query = "SELECT id, numero_cuenta, id_banco_id, rfc FROM gastos_cuenta"
     return fetch_all(query)
+
+
+# ----------------------  VENTAS-------------------------------------
+def get_ventas_data():
+    ventas_query = "SELECT * FROM ventas_ventas"
+    ventas_data = pd.DataFrame(fetch_all(ventas_query))
+    return ventas_data

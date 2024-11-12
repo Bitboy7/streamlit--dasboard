@@ -14,7 +14,6 @@ def load_data():
     df = pd.DataFrame(registros, columns=['Fecha', 'monto', 'Categoria', 'Sucursal','Numero de cuenta', 'Banco'])
     return df
     
-
 # Streamlit app
 st.title("Reporte de Gastos")
 

@@ -65,25 +65,28 @@ def download_excel_file(df):
         href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="datos.xlsx"><button style="background-color: #87C489; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s ease; text-decoration: none; display: inline-block;">Descargar Excel</button></a>'
         return href
 
-# Función para crear el PDF
+# Función para crear el PDF con mejor diseño y estilos corporativos
 def create_pdf(df):
     pdf = FPDF()
     pdf.add_page()
 
     # Título
     pdf.set_font("Arial", "B", 16)
+    pdf.set_text_color(135, 196, 137)  # Color corporativo
     pdf.cell(0, 10, "Reporte de Gastos", ln=True, align='C')
     pdf.ln(10)
 
     # Fecha y hora de generación del reporte
     pdf.set_font("Arial", "", 10)
+    pdf.set_text_color(0, 0, 0)  # Color negro
     now = datetime.now()
     pdf.cell(0, 10, f"Fecha y Hora de Generación: {now.strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
     pdf.ln(10)
 
     # Resumen estadístico
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Resumen Estadístico", ln=True)
+    pdf.set_fill_color(135, 196, 137)  # Color corporativo
+    pdf.cell(0, 10, "Resumen Estadístico", ln=True, fill=True)
     pdf.set_font("Arial", "", 10)
     stats = df['monto'].describe()
     for stat, value in stats.items():
@@ -92,7 +95,8 @@ def create_pdf(df):
 
     # Top 5 gastos más altos
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Top 5 Gastos más Altos", ln=True)
+    pdf.set_fill_color(135, 196, 137)  # Color corporativo
+    pdf.cell(0, 10, "Top 5 Gastos más Altos", ln=True, fill=True)
     pdf.set_font("Arial", "", 10)
     top_5 = df.nlargest(5, 'monto')
     for _, row in top_5.iterrows():
@@ -101,7 +105,8 @@ def create_pdf(df):
 
     # Gastos por categoría
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Gastos por Categoría", ln=True)
+    pdf.set_fill_color(135, 196, 137)  # Color corporativo
+    pdf.cell(0, 10, "Gastos por Categoría", ln=True, fill=True)
     pdf.set_font("Arial", "", 10)
     category_totals = df.groupby('Categoria')['monto'].sum().sort_values(ascending=False)
     for category, total in category_totals.items():
