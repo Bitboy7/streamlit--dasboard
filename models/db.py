@@ -21,6 +21,14 @@ def create_connection():
 
 	return conn
 
+def refresh_connection(conn):
+		if conn.is_connected():
+			conn.reconnect(attempts=3, delay=5)
+			print("Connection to MySQL DB refreshed")
+		else:
+			print("Connection is not active, creating a new connection")
+			conn = create_connection()
+		return conn
 
 def close_connection(conn):
 	if conn:

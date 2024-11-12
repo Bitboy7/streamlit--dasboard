@@ -108,7 +108,7 @@ else:
     df_filtrado = [[registro[0], f'${registro[1]:,.2f}', registro[2], registro[3], registro[4], registro[5]] for registro in df_filtrado]
 
 # Mostrar el dataframe filtrado
-st.dataframe(pd.DataFrame(df_filtrado, columns=['Fecha', 'Monto', 'Categoria', 'Sucursal','Numero de cuenta', 'Banco']))
+st.dataframe(pd.DataFrame(df_filtrado, columns=['Fecha', 'Monto', 'Categoria', 'Sucursal','Numero de cuenta', 'Banco']), use_container_width=True)
 
 # Obtener el tipo de estadística seleccionada por el usuario
 filtro_estadistica = expander.selectbox(
@@ -173,12 +173,10 @@ expander.markdown(download_excel_file(df_filtrado), unsafe_allow_html=True)
 df_filtrado = pd.DataFrame(df_filtrado, columns=['Fecha', 'Monto', 'Categoria', 'Sucursal','Numero de cuenta', 'Banco', 'Extra Column'])
 
 # Crear gráfico interactivo con Plotly
-fig = px.bar(df_filtrado, x='Categoria', y='Monto', title="Gráfico por Categoría.", hover_data=['Categoria', 'Monto'], color='Sucursal', text_auto=True, labels={'Monto': 'Monto'}, height=500)
+fig = px.bar(df_filtrado, x='Categoria', y='Monto', title="Gráfico por Categoría.", hover_data=['Categoria', 'Monto'], color='Sucursal', text_auto=True, labels={'Monto': 'Monto'})
 
 # Crear gráfico interactivo con Plotly
-fig2 = px.bar(df_filtrado, x='Monto', y='Sucursal', title="Gráfico por Sucursal.",
-              hover_data=['Sucursal', 'Monto'], color='Categoria', text_auto=True,
-              labels={'gastos': 'Gráfico de Montos por Sucursal.'}, height=500)
+fig2 = px.area(df_filtrado, x='Numero de cuenta', y='Monto', title="Gráfico por Sucursal.", hover_data=['Sucursal', 'Monto', 'Numero de cuenta'], color='Sucursal', labels={'Monto': 'Monto'})
 
 fig3 = px.pie(df_filtrado, values='Monto', names='Categoria', title='Gastos por Categoría', color='Sucursal')
 
@@ -187,21 +185,18 @@ fig4 = px.pie(df_filtrado, values='Monto', names='Numero de cuenta', title='Gast
 st.subheader("Gráficas.", divider=True)
 # Obtener el tipo de gráfico seleccionado por el usuario
 filtro_grafico = st.selectbox(
-    "Tipo de gráfico:", ["Gráfico de Montos por Categoría (Bar)", "Gráfico de Montos por Sucursal (Bar)",
+    "Tipo de gráfico:", ["Gráfico de Montos por Categoría (Bar)", "Gráfico de Montos por Sucursal (Área)",
                          "Gráfico de Montos por Categoría (Pie)", "Gráfico de Montos por Sucursal (Pie)"])
 
 if filtro_grafico == "Gráfico de Montos por Categoría (Bar)":
     # Mostrar gráfico de Montos por Categoría en Streamlit
     st.plotly_chart(fig, use_container_width=True)
-elif filtro_grafico == "Gráfico de Montos por Sucursal (Bar)":
+elif filtro_grafico == "Gráfico de Montos por Sucursal (Área)":
     # Mostrar gráfico de Montos por Sucursal en Streamlit
     st.plotly_chart(fig2, use_container_width=True)
 elif filtro_grafico == "Gráfico de Montos por Categoría (Pie)":
     # Mostrar gráfico de Montos por Categoría (Pie) en Streamlit
     st.plotly_chart(fig3, use_container_width=True)
 elif filtro_grafico == "Gráfico de Montos por Sucursal (Pie)":
-    st.plotly_chart(fig4)
+    st.plotly_chart(fig4, use_container_width=True)
 
-# Cerrar el cursor y la conexión a la base de datos
-cursor.close()
-conn.close()
