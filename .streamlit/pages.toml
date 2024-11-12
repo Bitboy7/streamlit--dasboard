@@ -4,7 +4,6 @@ backgroundColor="#2f2e2e"
 secondaryBackgroundColor="#777777"
 textColor="#ffffff"
 
-
 [[pages]]
 path = "app.py"
 name = "Inicio"

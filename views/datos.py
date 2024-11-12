@@ -4,6 +4,11 @@ from dotenv import load_dotenv
 import pandas as pd
 import plotly.express as px
 from helpers.download_files import *
+
+from models.db import create_connection
+from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_option_menu import option_menu
+
 st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
@@ -18,10 +23,6 @@ load_css_style()
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
-from models.db import create_connection
-from streamlit_extras.metric_cards import style_metric_cards
-from streamlit_option_menu import option_menu
 
 conn = create_connection()
 cursor = conn.cursor()
