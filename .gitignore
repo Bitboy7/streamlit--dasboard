@@ -28,3 +28,18 @@ Thumbs.db
 .env
 
 .idea
+
+# Archivos generados por Poetry
+poetry.lock
+pyproject.toml
+
+# Archivos generados por Streamlit
+streamlit/*.log
+streamlit/*.pid
+streamlit/*.db
+streamlit/echo-server.json
+streamlit/config.toml
+streamlit/credentials.toml
+streamlit/source_cache
+streamlit/uploads
+streamlit/.streamlit/secrets.toml
